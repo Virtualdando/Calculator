@@ -31,18 +31,21 @@ const operate = (operator, a, b) => {
 // Get DOM elements
 const display = document.getElementById("calculator-display");
 const buttons = document.getElementById("calculator-buttons");
+const decimalButton = document.getElementById("decimal");
 
 // Variables to track current state
 let currentOperator = null;
 let firstNumber = null;
 let shouldClearDisplay = false;
 
-// Function to add a digit to the display
 function addToDisplay(digit) {
   if (display.value === "0" || shouldClearDisplay) {
     display.value = digit;
     shouldClearDisplay = false;
-  } else {
+  } else if (digit === "." && display.value.includes(".")) {
+    // Do nothing if a decimal point is already present
+    return;
+  } else if (display.value.length < 9) {
     display.value += digit;
   }
 }
@@ -56,7 +59,8 @@ function addOperator(operator) {
   // Set the current operator and update the first number
   currentOperator = operator;
   firstNumber = parseFloat(display.value);
-  shouldClearDisplay = true;
+  shouldClearDisplay = true; // Set the flag to true
+  decimalButton.disabled = false; // Enable the decimal button
 }
 
 // Function to clear the display and reset variables
@@ -65,6 +69,7 @@ function clearDisplay() {
   currentOperator = null;
   firstNumber = null;
   shouldClearDisplay = false;
+  decimalButton.disabled = false;
 }
 
 // Function to perform the calculation
@@ -86,8 +91,16 @@ function calculate() {
       currentOperator = null;
       firstNumber = parseFloat(result);
       shouldClearDisplay = true;
+      decimalButton.disabled = false; // Enable the decimal button
     }
   }
+}
+
+function addDecimal() {
+  if (!display.value.includes(".")) {
+    display.value += ".";
+  }
+  decimalButton.disabled = true;
 }
 
 // Event listener for button clicks
@@ -107,3 +120,6 @@ buttons.addEventListener("click", (event) => {
     calculate();
   }
 });
+
+decimalButton.addEventListener("click", addDecimal);
+
