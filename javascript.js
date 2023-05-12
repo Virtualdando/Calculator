@@ -25,6 +25,7 @@ const display = document.getElementById('calculator-display');
 const buttons = document.getElementById('calculator-buttons');
 let currentOperator = null;
 let firstNumber = null;
+let shouldClearDisplay = false;
 
 buttons.addEventListener('click', (event) => {
     const button = event.target;
@@ -40,29 +41,37 @@ buttons.addEventListener('click', (event) => {
 });
 
 function addToDisplay(digit) {
-    if (display.value === '0') {
+    if (display.value === '0' || shouldClearDisplay) {
         display.value = digit;
+        shouldClearDisplay = false;
     } else {
         display.value += digit;
     }
 }
 
 function addOperator(operator) {
+    if (currentOperator !== null) {
+      calculate();
+    }
     currentOperator = operator;
     firstNumber = parseFloat(display.value);
-    display.value = '0';
-}
+    shouldClearDisplay = true;
+  }
 
 function clearDisplay () {
     display.value = '0';
     currentOperator = null;
     firstNumber = null;
+    shouldClearDisplay = false;
 }
 
 function calculate() {
     const secondNumber = parseFloat(display.value);
-    let result = operate(currentOperator, firstNumber, secondNumber);
-    display.value = result;
-    currentOperator = null;
-    firstNumber = result;
-}
+    if (currentOperator !== null && firstNumber !== null) {
+      const result = operate(currentOperator, firstNumber, secondNumber);
+      display.value = result;
+      firstNumber = result;
+      shouldClearDisplay = true;
+    }
+  }
+
