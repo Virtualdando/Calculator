@@ -38,17 +38,22 @@ let currentOperator = null;
 let firstNumber = null;
 let shouldClearDisplay = false;
 
+function updateDisplay(content) {
+  display.textContent = content;
+}
+
 function addToDisplay(digit) {
-  if (display.value === "0" || shouldClearDisplay) {
-    display.value = digit;
+  if (display.textContent === "0" || shouldClearDisplay) {
+    updateDisplay(digit);
     shouldClearDisplay = false;
-  } else if (digit === "." && display.value.includes(".")) {
+  } else if (digit === "." && display.textContent.includes(".")) {
     // Do nothing if a decimal point is already present
     return;
-  } else if (display.value.length < 9) {
-    display.value += digit;
+  } else if (display.textContent.length < 9) {
+    updateDisplay(display.textContent + digit);
   }
 }
+
 
 // Function to handle operator button click
 function addOperator(operator) {
@@ -58,14 +63,14 @@ function addOperator(operator) {
   }
   // Set the current operator and update the first number
   currentOperator = operator;
-  firstNumber = parseFloat(display.value);
+  firstNumber = parseFloat(display.textContent);
   shouldClearDisplay = true; // Set the flag to true
   decimalButton.disabled = false; // Enable the decimal button
 }
 
 // Function to clear the display and reset variables
 function clearDisplay() {
-  display.value = "0";
+  updateDisplay("0");
   currentOperator = null;
   firstNumber = null;
   shouldClearDisplay = false;
@@ -75,11 +80,11 @@ function clearDisplay() {
 // Function to perform the calculation
 function calculate() {
   if (currentOperator !== null && firstNumber !== null) {
-    const secondNumber = parseFloat(display.value);
+    const secondNumber = parseFloat(display.textContent);
     let result = operate(currentOperator, firstNumber, secondNumber);
     // Check if the result is an error message
     if (typeof result === "string") {
-      display.value = result;
+      updateDisplay(result);
     } else {
       // Check if the result is an integer
       if (Number.isInteger(result)) {
@@ -87,7 +92,7 @@ function calculate() {
       } else {
         result = result.toFixed(2);
       }
-      display.value = result;
+      updateDisplay(result);
       currentOperator = null;
       firstNumber = parseFloat(result);
       shouldClearDisplay = true;
@@ -96,30 +101,51 @@ function calculate() {
   }
 }
 
+function calculatePercent() {
+  const number = parseFloat(display.value);
+  const result = number / 100;
+  updateDisplay(result.toFixed(2));
+}
+
+function toggleSign() {
+  const number = parseFloat(display.value);
+ updateDisplay((-1 * number).toString());
+}
+
 function addDecimal() {
-  if (!display.value.includes(".")) {
-    display.value += ".";
+  if (display.textContent && !display.textContent.includes(".")) {
+    updateDisplay(display.textContent + ".");
   }
   decimalButton.disabled = true;
 }
 
+
+
 // Event listener for button clicks
 buttons.addEventListener("click", (event) => {
   const button = event.target;
+  const buttonText = button.innerText;
+
   // Digit button clicked
-  if (button.classList.contains("digit")) {
-    addToDisplay(button.innerText);
+  if (button.classList.contains("digit") || button.classList.contains("twoColumns")) {
+    addToDisplay(buttonText);
     // Operator button clicked
   } else if (button.classList.contains("operator")) {
-    addOperator(button.innerText);
+    addOperator(buttonText);
     // Clear button clicked
+  } else if (button.id === "decimal") {
+    addDecimal();
   } else if (button.id === "clear") {
     clearDisplay();
     // Equals button clicked
   } else if (button.id === "equals") {
     calculate();
+  } else if (button.id === "percent") {
+    calculatePercent();
+  } else if (button.id === "sign") {
+    toggleSign();
   }
 });
 
-decimalButton.addEventListener("click", addDecimal);
+
 
