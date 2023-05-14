@@ -1,18 +1,16 @@
 // Basic arithmetic operations
 const add = (a, b) => a + b;
-
 const subtract = (a, b) => a - b;
-
 const multiply = (a, b) => a * b;
-
 const divide = (a, b) => {
   if (b === 0) {
-    return "lmao";
+    return "Error: Division by zero";
   }
   return a / b;
 };
+const calculatePercent = (a, b) => (a * b) / 100;
 
-// Function to perform the arithmetic operation based on their operator
+// Function to perform the arithmetic operation based on the operator
 const operate = (operator, a, b) => {
   switch (operator) {
     case "+":
@@ -23,6 +21,8 @@ const operate = (operator, a, b) => {
       return multiply(a, b);
     case "/":
       return divide(a, b);
+    case "%":
+      return calculatePercent(a, b);
     default:
       return 0;
   }
@@ -32,40 +32,49 @@ const operate = (operator, a, b) => {
 const display = document.getElementById("calculator-display");
 const buttons = document.getElementById("calculator-buttons");
 const decimalButton = document.getElementById("decimal");
+const zeroButton = document.querySelector(".twoColumns");
 
 // Variables to track current state
 let currentOperator = null;
 let firstNumber = null;
 let shouldClearDisplay = false;
 
+// Function to update the display
 function updateDisplay(content) {
   display.textContent = content;
 }
 
+// Function to add a digit to the display
 function addToDisplay(digit) {
+  if (display.textContent === "0" && digit === "0") {
+    return; // Ignore adding another "0" if the display is already "0"
+  }
+
   if (display.textContent === "0" || shouldClearDisplay) {
     updateDisplay(digit);
     shouldClearDisplay = false;
   } else if (digit === "." && display.textContent.includes(".")) {
-    // Do nothing if a decimal point is already present
     return;
   } else if (display.textContent.length < 9) {
     updateDisplay(display.textContent + digit);
   }
 }
 
-
 // Function to handle operator button click
 function addOperator(operator) {
-  // Perform calculation if there's already an operator and a first number
   if (currentOperator !== null && firstNumber !== null) {
     calculate();
   }
-  // Set the current operator and update the first number
+
   currentOperator = operator;
   firstNumber = parseFloat(display.textContent);
-  shouldClearDisplay = true; // Set the flag to true
-  decimalButton.disabled = false; // Enable the decimal button
+  shouldClearDisplay = true;
+  decimalButton.disabled = false;
+}
+
+// Function to handle the "0" button click
+function addZero() {
+  addToDisplay("0");
 }
 
 // Function to clear the display and reset variables
@@ -74,78 +83,61 @@ function clearDisplay() {
   currentOperator = null;
   firstNumber = null;
   shouldClearDisplay = false;
-  decimalButton.disabled = false;
 }
 
 // Function to perform the calculation
 function calculate() {
   if (currentOperator !== null && firstNumber !== null) {
     const secondNumber = parseFloat(display.textContent);
-    let result = operate(currentOperator, firstNumber, secondNumber);
-    // Check if the result is an error message
+    const result = operate(currentOperator, firstNumber, secondNumber);
+
     if (typeof result === "string") {
       updateDisplay(result);
     } else {
-      // Check if the result is an integer
-      if (Number.isInteger(result)) {
-        result = parseInt(result);
-      } else {
-        result = result.toFixed(2);
-      }
-      updateDisplay(result);
+      updateDisplay(result.toFixed(2));
       currentOperator = null;
       firstNumber = parseFloat(result);
       shouldClearDisplay = true;
-      decimalButton.disabled = false; // Enable the decimal button
+      decimalButton.disabled = false;
     }
   }
 }
 
-function calculatePercent() {
-  const number = parseFloat(display.value);
-  const result = number / 100;
-  updateDisplay(result.toFixed(2));
-}
-
+// Function to toggle the sign of the number
 function toggleSign() {
-  const number = parseFloat(display.value);
- updateDisplay((-1 * number).toString());
+  const number = parseFloat(display.textContent);
+  updateDisplay((-1 * number).toString());
 }
 
+// Function to add a decimal point
 function addDecimal() {
-  if (display.textContent && !display.textContent.includes(".")) {
+  if (!display.textContent.includes(".")) {
     updateDisplay(display.textContent + ".");
   }
   decimalButton.disabled = true;
 }
 
-
-
-// Event listener for button clicks
+// Add event listeners to the buttons
 buttons.addEventListener("click", (event) => {
   const button = event.target;
   const buttonText = button.innerText;
 
-  // Digit button clicked
-  if (button.classList.contains("digit") || button.classList.contains("twoColumns")) {
-    addToDisplay(buttonText);
-    // Operator button clicked
-  } else if (button.classList.contains("operator")) {
-    addOperator(buttonText);
-    // Clear button clicked
-  } else if (button.id === "decimal") {
-    addDecimal();
-  } else if (button.id === "clear") {
+  if (button.id === "clear") {
     clearDisplay();
-    // Equals button clicked
-  } else if (button.id === "equals") {
-    calculate();
-  } else if (button.id === "percent") {
-    calculatePercent();
   } else if (button.id === "sign") {
     toggleSign();
+  } else if (button.id === "percent") {
+    calculate();
+    addOperator("%");
+  } else if (button.classList.contains("digit") || button.id === "decimal") {
+    addToDisplay(buttonText);
+  } else if (button.classList.contains("operator")) {
+    addOperator(buttonText);
+  } else if (button.id === "equals") {
+    calculate();
   }
 });
 
-
-
+// Add event listener for the decimal button
+zeroButton.addEventListener("click", addZero);
+decimalButton.addEventListener("click", addDecimal);
