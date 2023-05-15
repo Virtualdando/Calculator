@@ -4,7 +4,7 @@ const subtract = (a, b) => a - b;
 const multiply = (a, b) => a * b;
 const divide = (a, b) => {
   if (b === 0) {
-    return "Error: Division by zero";
+    return "lmao";
   }
   return a / b;
 };
@@ -62,6 +62,9 @@ function addToDisplay(digit) {
 
 // Function to handle operator button click
 function addOperator(operator) {
+  if (display.textContent === "0") {
+    return;
+  }
   if (currentOperator !== null && firstNumber !== null) {
     calculate();
   }
@@ -74,6 +77,9 @@ function addOperator(operator) {
 
 // Function to handle the "0" button click
 function addZero() {
+  if (shouldClearDisplay) {
+    return;
+  }
   addToDisplay("0");
 }
 
@@ -135,6 +141,11 @@ buttons.addEventListener("click", (event) => {
     addOperator(buttonText);
   } else if (button.id === "equals") {
     calculate();
+  } else if (button.classList.contains("operator")) {
+    if (buttonText === "/") {
+      event.preventDefault();
+    }
+    addOperator(buttonText);
   }
 });
 

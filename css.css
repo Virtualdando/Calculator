@@ -47,11 +47,11 @@ html, body {
     padding: 5px;
 }
 
-#calculator-display#input {
+#calculator-display {
     font-size: 1.5em;
     font-weight: bold;
     background-color: #b2b9b7;
-    margin: 5px;
+    margin: 5px -12px;
     width: 100%;
 }
 
@@ -72,5 +72,20 @@ button {
 
 button#decimal,
 button#equals {
-    width: 42.2%
+    width: 42.2%;
+    background-color: orchid;
+    font-weight: bold;
 }
+
+.operator {
+    background-color: orchid;
+    font-weight: bold;
+}
+
+.twoColumns,#clear,#sign,#percent {
+    background-color: #a69ce0;
+    font-weight: bold;
+}
+
+
+
